@@ -1,0 +1,6 @@
+uploads/
+
+.env
+uploads/*
+!uploads/.gitkeep
+uploads/gallery/

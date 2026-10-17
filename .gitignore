@@ -1,0 +1,19 @@
+# Local secrets
+**/.env
+**/.env.local
+!**/.env.example
+
+# Dependencies & builds
+**/node_modules/
+**/dist/
+**/.next/
+**/coverage/
+**/uploads/*
+!**/uploads/.gitkeep
+
+# OS / IDE
+.DS_Store
+*.log
+.idea/
+.vscode/
+.data/
