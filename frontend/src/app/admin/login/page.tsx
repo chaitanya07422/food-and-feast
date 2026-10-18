@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { AdminAlert, Field } from "@/components/admin/ui";
 import { ApiError, api } from "@/lib/api";
 
 export default function AdminLoginPage() {
@@ -30,65 +31,63 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-16">
-      <p className="text-xs tracking-[0.2em] text-gold uppercase">Admin portal</p>
-      <h1 className="mt-2 font-display text-4xl text-burgundy">Sign in</h1>
-      <p className="mt-3 text-sm text-muted">
-        Manage dishes, prices, and categories for Food &amp; Feast.
-      </p>
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-16">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(107,30,42,0.08),_transparent_55%)]"
+        aria-hidden
+      />
+      <div className="relative w-full max-w-md">
+        <p className="text-[0.65rem] tracking-[0.2em] text-gold uppercase">
+          Food &amp; Feast
+        </p>
+        <h1 className="mt-2 font-display text-4xl text-burgundy">Sign in</h1>
+        <p className="mt-2 text-sm text-muted">
+          Manage dishes, gallery, and homepage content for the restaurant.
+        </p>
 
-      <form
-        onSubmit={onSubmit}
-        className="mt-8 space-y-4 rounded-[var(--radius-md)] border border-border bg-surface p-6 shadow-[var(--shadow-soft)]"
-      >
-        <div>
-          <label className="block text-sm font-medium" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            autoComplete="username"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-border bg-ivory px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium" htmlFor="password">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border border-border bg-ivory px-3 py-2 text-sm"
-          />
-        </div>
-        {error ? (
-          <p className="text-sm text-[#8b2e2e]" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-burgundy px-4 py-2.5 text-sm font-medium text-ivory hover:bg-burgundy-deep disabled:opacity-60"
+        <form
+          onSubmit={onSubmit}
+          className="admin-card mt-8 space-y-4 p-6 sm:p-7"
         >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+          <Field label="Email" htmlFor="email" required>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="admin-input"
+            />
+          </Field>
+          <Field label="Password" htmlFor="password" required>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="admin-input"
+            />
+          </Field>
+          {error ? <AdminAlert tone="error">{error}</AdminAlert> : null}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary w-full"
+          >
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
 
-      <Link
-        href="/"
-        className="mt-6 text-sm text-burgundy underline-offset-4 hover:underline"
-      >
-        ← Back to website
-      </Link>
+        <Link
+          href="/"
+          className="mt-6 inline-block text-sm text-burgundy underline-offset-4 hover:underline"
+        >
+          ← Back to website
+        </Link>
+      </div>
     </div>
   );
 }

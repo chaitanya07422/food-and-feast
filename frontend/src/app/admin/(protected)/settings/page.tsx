@@ -1,6 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import {
+  AdminAlert,
+  AdminPageHeader,
+  Field,
+} from "@/components/admin/ui";
 import { api, type RestaurantSettings } from "@/lib/api";
 
 export default function AdminSettingsPage() {
@@ -11,6 +16,8 @@ export default function AdminSettingsPage() {
   });
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api
@@ -22,69 +29,109 @@ export default function AdminSettingsPage() {
           phone: s.phone ?? "",
         }),
       )
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setMessage(null);
+    setSaving(true);
     try {
-      await api.patch("/admin/settings", form);
+      await api.patch("/admin/settings", {
+        name: form.name.trim(),
+        address: form.address.trim(),
+        phone: form.phone.trim(),
+      });
       setMessage("Settings saved.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl">Restaurant settings</h1>
-      <p className="mt-2 text-sm text-muted">
-        Contact details from the menu PDF. Update anytime — changes persist in
-        MongoDB.
-      </p>
-      <form
-        onSubmit={onSubmit}
-        className="mt-8 max-w-xl space-y-4 rounded-[var(--radius-md)] border border-border bg-surface p-6"
-      >
-        <label className="block text-sm">
-          Display name
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="mt-1 w-full rounded-md border border-border px-3 py-2"
-          />
-        </label>
-        <label className="block text-sm">
-          Address
-          <textarea
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-            rows={3}
-            className="mt-1 w-full rounded-md border border-border px-3 py-2"
-          />
-        </label>
-        <label className="block text-sm">
-          Phone
-          <input
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className="mt-1 w-full rounded-md border border-border px-3 py-2"
-          />
-        </label>
-        <button
-          type="submit"
-          className="rounded-md bg-burgundy px-4 py-2 text-sm font-medium text-ivory"
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Restaurant"
+        title="Settings"
+        description="Display name, address, and phone used across the public site. Changes persist in MongoDB."
+      />
+
+      {loading ? (
+        <p className="text-sm text-muted">Loading settings…</p>
+      ) : (
+        <form
+          onSubmit={onSubmit}
+          className="admin-card max-w-xl space-y-5 p-5 sm:p-6"
         >
-          Save settings
-        </button>
-        {message ? <p className="text-sm text-[var(--color-success)]">{message}</p> : null}
-        {error ? (
-          <p className="text-sm text-[var(--color-danger)]" role="alert">
-            {error}
-          </p>
-        ) : null}
-      </form>
+          <section className="space-y-4">
+            <h2 className="text-[0.65rem] tracking-[0.16em] text-gold uppercase">
+              Profile
+            </h2>
+            <Field label="Display name" htmlFor="settings-name" required>
+              <input
+                id="settings-name"
+                required
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="admin-input"
+              />
+            </Field>
+          </section>
+
+          <section className="space-y-4 border-t border-border pt-5">
+            <h2 className="text-[0.65rem] tracking-[0.16em] text-gold uppercase">
+              Contact
+            </h2>
+            <Field label="Address" htmlFor="settings-address">
+              <textarea
+                id="settings-address"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                rows={3}
+                className="admin-input"
+              />
+            </Field>
+            <Field
+              label="Phone"
+              htmlFor="settings-phone"
+              help="Shown on the contact page and footer. Use digits guests can dial."
+            >
+              <input
+                id="settings-phone"
+                type="tel"
+                inputMode="tel"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="admin-input"
+              />
+            </Field>
+            {form.phone.trim() ? (
+              <p className="text-sm text-muted">
+                Preview:{" "}
+                <a
+                  href={`tel:${form.phone.replace(/\s/g, "")}`}
+                  className="font-medium text-burgundy underline-offset-2 hover:underline"
+                >
+                  {form.phone}
+                </a>
+              </p>
+            ) : null}
+          </section>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-5">
+            <button type="submit" disabled={saving} className="btn-primary">
+              {saving ? "Saving…" : "Save settings"}
+            </button>
+          </div>
+
+          {message ? <AdminAlert tone="success">{message}</AdminAlert> : null}
+          {error ? <AdminAlert tone="error">{error}</AdminAlert> : null}
+        </form>
+      )}
     </div>
   );
 }

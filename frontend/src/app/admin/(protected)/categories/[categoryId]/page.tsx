@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import {
-  api,
-  formatInr,
-  type Category,
-  type MenuItem,
-} from "@/lib/api";
+  AdminAlert,
+  AdminEmptyState,
+  AdminPageHeader,
+  DishThumb,
+  StatusBadge,
+} from "@/components/admin/ui";
+import { api, formatInr, type Category, type MenuItem } from "@/lib/api";
 
 export default function AdminCategoryDishesPage() {
   const params = useParams();
@@ -64,117 +67,153 @@ export default function AdminCategoryDishesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="text-sm text-muted">
         <Link
           href="/admin/categories"
-          className="text-sm text-burgundy underline-offset-2 hover:underline"
+          className="text-burgundy underline-offset-2 hover:underline"
         >
-          ← All categories
+          Categories
         </Link>
-        <h1 className="mt-3 font-display text-3xl text-charcoal">
-          {category?.name ?? "Category"}
-        </h1>
-        <p className="mt-2 text-sm text-muted">
-          {loading
+        <span className="mx-1.5 text-border">/</span>
+        <span className="text-charcoal">{category?.name ?? "…"}</span>
+      </div>
+
+      <AdminPageHeader
+        title={category?.name ?? "Category"}
+        description={
+          loading
             ? "Loading…"
-            : `${items.length} ${items.length === 1 ? "dish" : "dishes"} in this category.`}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href={`/admin/menu?categoryId=${categoryId}`}
-          className="btn-primary"
-        >
-          Add dish here
-        </Link>
-        <button
-          type="button"
-          onClick={() => void load()}
-          className="btn-secondary"
-        >
-          Refresh
-        </button>
-      </div>
-
-      {message ? <p className="text-sm text-[#3d6b4f]">{message}</p> : null}
-      {error ? (
-        <p className="text-sm text-[#8b2e2e]" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      {loading ? (
-        <p className="text-muted">Loading dishes…</p>
-      ) : items.length === 0 ? (
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface p-10 text-center">
-          <p className="text-muted">No dishes in this category yet.</p>
+            : `${items.length} ${items.length === 1 ? "dish" : "dishes"} in this category.`
+        }
+        actions={
           <Link
             href={`/admin/menu?categoryId=${categoryId}`}
-            className="btn-primary mt-5"
+            className="btn-primary gap-1.5 !py-2.5"
           >
-            Add first dish
+            <Plus size={16} aria-hidden />
+            Add dish here
           </Link>
-        </div>
+        }
+      />
+
+      {message ? <AdminAlert tone="success">{message}</AdminAlert> : null}
+      {error ? <AdminAlert tone="error">{error}</AdminAlert> : null}
+
+      {loading ? (
+        <p className="text-sm text-muted">Loading dishes…</p>
+      ) : items.length === 0 ? (
+        <AdminEmptyState
+          title="No dishes in this category yet"
+          description="Add the first dish to populate this section of the menu."
+          action={
+            <Link
+              href={`/admin/menu?categoryId=${categoryId}`}
+              className="btn-primary"
+            >
+              Add first dish
+            </Link>
+          }
+        />
       ) : (
-        <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-border bg-surface shadow-[var(--shadow-soft)]">
-          <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-border bg-ivory-deep/60 text-xs tracking-wide uppercase">
-              <tr>
-                <th className="px-3 py-3">Dish</th>
-                <th className="px-3 py-3">Price</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item._id} className="border-b border-border/70">
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-ivory-deep">
-                        {item.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={item.imageUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </div>
-                      <div>
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-xs text-muted">
-                          {item.isAvailable ? "Available" : "Unavailable"}
-                          {item.imageUrl ? " · Photo" : " · No photo"}
+        <>
+          <div className="admin-table-wrap hidden md:block">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Dish</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item._id}>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <DishThumb src={item.imageUrl} />
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-xs text-muted">
+                            {item.isAvailable ? "Available" : "Unavailable"}
+                            {item.imageUrl ? " · Photo" : " · No photo"}
+                          </p>
                         </div>
                       </div>
+                    </td>
+                    <td className="whitespace-nowrap font-medium">
+                      {formatInr(item.price)}
+                    </td>
+                    <td>
+                      <StatusBadge
+                        tone={
+                          item.status === "published" ? "success" : "warning"
+                        }
+                      >
+                        {item.status}
+                      </StatusBadge>
+                    </td>
+                    <td>
+                      <div className="flex gap-3">
+                        <Link
+                          href={`/admin/menu?edit=${item._id}`}
+                          className="text-sm font-medium text-burgundy underline-offset-2 hover:underline"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => onDelete(item._id, item.name)}
+                          className="text-sm font-medium text-[var(--ff-danger)] underline-offset-2 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <ul className="space-y-3 md:hidden">
+            {items.map((item) => (
+              <li key={item._id} className="admin-card p-3.5">
+                <div className="flex gap-3">
+                  <DishThumb src={item.imageUrl} size="lg" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-xs text-muted">{formatInr(item.price)}</p>
+                    <div className="mt-2">
+                      <StatusBadge
+                        tone={
+                          item.status === "published" ? "success" : "warning"
+                        }
+                      >
+                        {item.status}
+                      </StatusBadge>
                     </div>
-                  </td>
-                  <td className="px-3 py-3">{formatInr(item.price)}</td>
-                  <td className="px-3 py-3 capitalize">{item.status}</td>
-                  <td className="px-3 py-3">
-                    <div className="flex gap-2">
+                    <div className="mt-3 flex gap-3 text-sm">
                       <Link
                         href={`/admin/menu?edit=${item._id}`}
-                        className="text-burgundy underline-offset-2 hover:underline"
+                        className="font-medium text-burgundy"
                       >
                         Edit
                       </Link>
                       <button
                         type="button"
                         onClick={() => onDelete(item._id, item.name)}
-                        className="text-[#8b2e2e] underline-offset-2 hover:underline"
+                        className="font-medium text-[var(--ff-danger)]"
                       >
                         Delete
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );
