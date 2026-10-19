@@ -125,10 +125,12 @@ jobs:
 
       - name: Rsync API
         run: |
+          # Exclude only the on-disk upload folder symlink/target, not dist/uploads (Nest module)
           rsync -az --delete \
             -e 'ssh -i ~/.ssh/deploy_key' \
             --exclude .env \
-            --exclude uploads \
+            --exclude '/uploads' \
+            --exclude '/uploads/**' \
             ./api-release/ \
             "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/apps/food-and-feast-api/current/"
 
