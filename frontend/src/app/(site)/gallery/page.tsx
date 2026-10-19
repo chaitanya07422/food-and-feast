@@ -50,13 +50,17 @@ export default async function GalleryPage() {
         ) : (
           <div className="space-y-4">
             {lead ? (
-              <div className="relative aspect-[16/9] overflow-hidden rounded-[var(--radius-lg)] bg-ivory-deep shadow-[var(--shadow-soft)] sm:aspect-[21/9]">
+              <div className="group/photo relative aspect-[16/9] overflow-hidden rounded-[var(--radius-lg)] bg-ivory-deep shadow-[var(--shadow-soft)] transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] sm:aspect-[21/9] motion-reduce:hover:translate-y-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={lead.imageUrl}
                   alt={lead.imageAlt || "Food & Feast restaurant"}
-                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover/photo:scale-110 motion-reduce:transition-none motion-reduce:group-hover/photo:scale-100"
                   fetchPriority="high"
+                />
+                <div
+                  className="absolute inset-0 bg-burgundy-deep/0 transition-colors duration-300 group-hover/photo:bg-burgundy-deep/20 motion-reduce:transition-none"
+                  aria-hidden
                 />
               </div>
             ) : null}
@@ -64,7 +68,7 @@ export default async function GalleryPage() {
               {rest.map((img, i) => (
                 <li
                   key={img._id}
-                  className={`relative overflow-hidden rounded-[var(--radius-lg)] bg-ivory-deep shadow-[var(--shadow-soft)] ${
+                  className={`group/photo relative overflow-hidden rounded-[var(--radius-lg)] bg-ivory-deep shadow-[var(--shadow-soft)] transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0 ${
                     i % 5 === 0 ? "sm:col-span-2 sm:aspect-[16/10]" : "aspect-[4/3]"
                   }`}
                 >
@@ -72,8 +76,12 @@ export default async function GalleryPage() {
                   <img
                     src={img.imageUrl}
                     alt={img.imageAlt || "Food & Feast restaurant"}
-                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover/photo:scale-110 motion-reduce:transition-none motion-reduce:group-hover/photo:scale-100"
                     loading="lazy"
+                  />
+                  <div
+                    className="absolute inset-0 bg-burgundy-deep/0 transition-colors duration-300 group-hover/photo:bg-burgundy-deep/20 motion-reduce:transition-none"
+                    aria-hidden
                   />
                 </li>
               ))}

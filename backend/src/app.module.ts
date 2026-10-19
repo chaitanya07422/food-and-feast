@@ -10,6 +10,7 @@ import { HealthModule } from './health/health.module';
 import { HeroModule } from './hero/hero.module';
 import { MenuModule } from './menu/menu.module';
 import { SettingsModule } from './settings/settings.module';
+import { StorageModule } from './storage/storage.module';
 import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
@@ -30,6 +31,7 @@ import { UploadsModule } from './uploads/uploads.module';
         uri: config.getOrThrow<string>('mongodbUri'),
       }),
     }),
+    StorageModule,
     HealthModule,
     AuthModule,
     MenuModule,

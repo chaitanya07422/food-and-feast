@@ -95,12 +95,12 @@ export function MenuBrowser({ categories, items, initialCategory }: Props) {
         className="-mx-4 border-y border-border bg-surface/60 px-4 sm:mx-0 sm:rounded-[var(--radius-lg)] sm:border sm:px-2"
         aria-label="Menu categories"
       >
-        <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
+        <div className="flex gap-1 overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:thin]">
           <button
             type="button"
             aria-pressed={!category}
             onClick={() => selectCategory("")}
-            className={`relative shrink-0 px-3.5 py-2.5 text-sm whitespace-nowrap transition ${
+            className={`relative shrink-0 px-3.5 py-2.5 text-sm whitespace-nowrap transition-colors duration-200 ${
               !category
                 ? "font-semibold text-burgundy"
                 : "text-charcoal/70 hover:text-burgundy"
@@ -122,7 +122,7 @@ export function MenuBrowser({ categories, items, initialCategory }: Props) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => selectCategory(cat.slug)}
-                className={`relative shrink-0 px-3.5 py-2.5 text-sm whitespace-nowrap transition ${
+                className={`relative shrink-0 px-3.5 py-2.5 text-sm whitespace-nowrap transition-colors duration-200 ${
                   active
                     ? "font-semibold text-burgundy"
                     : "text-charcoal/70 hover:text-burgundy"

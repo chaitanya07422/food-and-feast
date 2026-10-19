@@ -1,40 +1,37 @@
-# Local Mac setup
+# Local setup
 
 ## Prerequisites
 
-- Node.js 20+ (Node 25 works for local demo)
+- Node.js 20+
 - npm 10+
-- MongoDB running locally (`mongod` available via Homebrew)
-
-### Start MongoDB
+- MongoDB on `27017` (Homebrew `mongodb-community` or Atlas)
 
 ```bash
 brew services start mongodb-community
-# or: mongod --config /opt/homebrew/etc/mongod.conf
 ```
 
-Confirm the API health check after starting the backend (`mongodb: "connected"`), or use Compass / `mongosh` if installed:
-
-```bash
-# optional
-mongosh --eval 'db.runCommand({ ping: 1 })'
-```
-
-If port `27017` is already in use, another MongoDB instance is likely running — you can reuse it with `MONGODB_URI=mongodb://127.0.0.1:27017/food-and-feast`.
-
-## Backend API
+## Backend
 
 ```bash
 cd food-and-feast/backend
-cp .env.example .env   # already present for demo if you keep local .env
+cp .env.example .env
+# Edit ADMIN_BOOTSTRAP_EMAIL / ADMIN_BOOTSTRAP_PASSWORD / SESSION_SECRET
 npm install
 npm run start:dev
 ```
 
-- Base URL: `http://localhost:4000/api/v1`
+- API: `http://localhost:4000/api/v1`
 - Health: `GET http://localhost:4000/api/v1/health`
 
-Environment variables are documented in `backend/.env.example`.
+For local file uploads keep `STORAGE_DRIVER=local`. For OCI (same keys as CreditSea LMS), set `STORAGE_DRIVER=oci` and the `OCI_*` vars in `.env.example`.
+
+### Seed menu (optional)
+
+```bash
+npm run seed                 # categories + dishes from menu PDF (no photos)
+npm run seed:gallery         # real photos from ../assets/restaurant/
+npm run seed:clear-mock-images  # if an old DB still has mock image URLs
+```
 
 ## Frontend
 
@@ -46,30 +43,19 @@ npm run dev
 ```
 
 - Site: `http://localhost:3000`
-- Admin shell: `http://localhost:3000/admin/login`
+- Admin: `http://localhost:3000/admin/login` (credentials = backend `ADMIN_BOOTSTRAP_*`)
 
-## Useful scripts
+## Scripts
 
 | App | Command | Purpose |
 |-----|---------|---------|
 | backend | `npm run start:dev` | Watch mode API |
-| backend | `npm run typecheck` | TypeScript check |
-| backend | `npm run build` | Production build |
-| frontend | `npm run dev` | Next.js dev server |
-| frontend | `npm run typecheck` | TypeScript check |
-| frontend | `npm run build` | Production build |
+| backend | `npm run typecheck` / `build` | Typecheck / production build |
+| frontend | `npm run dev` | Next.js dev |
+| frontend | `npm run typecheck` / `build` | Typecheck / production build |
 
-## Oracle Cloud (later)
+## Production
 
-Demo stays on this Mac for now. When you are ready to host on Oracle Cloud:
+See [DEPLOYMENT.md](DEPLOYMENT.md) for Oracle Cloud (Nginx HTTPS, `TRUST_PROXY`, OCI Object Storage, PM2).
 
-- Run MongoDB on OCI (Compute + mongod, or Atlas reachable from OCI)
-- Run NestJS on an OCI Compute instance (PM2 or systemd) behind HTTPS
-- Serve Next.js on the same instance or a separate app tier
-- Point DNS / firewall rules accordingly
-
-Deployment runbooks will be added in Milestone 6.
-
-## Git
-
-Do not initialize git until you ask. Keep secrets out of any future commit (`.env`, `.env.local`).
+Never commit `.env` or `.env.local`.

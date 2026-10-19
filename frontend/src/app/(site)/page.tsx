@@ -4,7 +4,13 @@ import {
   type HeroSlide,
 } from "@/components/home/hero-slideshow";
 import { DishCard } from "@/components/menu/dish-card";
-import { formatInr, api, type Category, type MenuItem, type RestaurantSettings } from "@/lib/api";
+import {
+  formatInr,
+  api,
+  type Category,
+  type MenuItem,
+  type RestaurantSettings,
+} from "@/lib/api";
 import { SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -63,20 +69,28 @@ export default async function HomePage() {
             About us
           </Link>
         </div>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)] bg-ivory-deep shadow-[var(--shadow-soft)]">
+        <Link
+          href="/gallery"
+          className="group/photo relative aspect-[4/3] block overflow-hidden rounded-[var(--radius-lg)] bg-ivory-deep shadow-[var(--shadow-soft)] transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy motion-reduce:hover:translate-y-0"
+        >
           {ambience ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={ambience}
               alt="Dining room at Food & Feast"
-              className="absolute inset-0 h-full w-full object-cover object-center"
+              className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover/photo:scale-110 motion-reduce:transition-none motion-reduce:group-hover/photo:scale-100"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-muted">
-              Restaurant photograph coming soon
-            </div>
+            <div
+              className="h-full bg-[linear-gradient(145deg,#ebe2d4,#f6f0e6)]"
+              aria-hidden
+            />
           )}
-        </div>
+          <div
+            className="absolute inset-0 bg-burgundy-deep/0 transition-colors duration-300 group-hover/photo:bg-burgundy-deep/20 motion-reduce:transition-none"
+            aria-hidden
+          />
+        </Link>
       </section>
 
       {/* Featured / menu CTA */}
@@ -106,42 +120,53 @@ export default async function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="mt-10 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-ivory">
+            <div className="group/cta mt-10 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-ivory shadow-[var(--shadow-soft)] transition-[box-shadow,border-color] duration-300 hover:border-burgundy/20 hover:shadow-[var(--shadow-card-hover)] motion-reduce:transition-none">
               <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
                 <div className="flex flex-col justify-center px-6 py-10 sm:px-10">
-                  <p className="font-display text-3xl text-charcoal sm:text-4xl">
+                  <p className="font-display text-3xl text-charcoal transition-colors duration-300 group-hover/cta:text-burgundy sm:text-4xl motion-reduce:transition-none">
                     200+ dishes ready to browse
                   </p>
                   <p className="mt-3 max-w-md text-muted">
                     Search by name, filter by category, and see vegetarian and
                     non-vegetarian options clearly.
                   </p>
-                  <Link href="/menu" className="btn-primary mt-8 w-fit">
+                  <Link
+                    href="/menu"
+                    className="btn-primary mt-8 w-fit transition-[transform,background-color] duration-200 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
+                  >
                     Explore Menu
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-px bg-border">
-                  {items.slice(0, 4).map((item) => (
-                    <div
+                  {items.slice(0, 4).map((item, i) => (
+                    <Link
                       key={item._id}
-                      className="relative aspect-square overflow-hidden bg-ivory-deep"
+                      href="/menu"
+                      className="group/tile relative aspect-square overflow-hidden bg-[linear-gradient(155deg,#ebe2d4,#f6f0e6)] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy"
+                      style={{ transitionDelay: `${i * 40}ms` }}
                     >
                       {item.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={item.imageUrl}
                           alt=""
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover/tile:scale-110 motion-reduce:transition-none motion-reduce:group-hover/tile:scale-100"
                           loading="lazy"
                         />
                       ) : null}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/70 to-transparent px-3 pt-8 pb-3">
-                        <p className="truncate text-sm text-ivory">{item.name}</p>
-                        <p className="text-xs text-gold-soft">
+                      <div
+                        className="absolute inset-0 bg-burgundy-deep/0 transition-colors duration-300 group-hover/tile:bg-burgundy-deep/25 motion-reduce:transition-none"
+                        aria-hidden
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/75 via-charcoal/35 to-transparent px-3 pt-10 pb-3 transition-[padding] duration-300 group-hover/tile:pb-4 motion-reduce:transition-none">
+                        <p className="truncate text-sm text-ivory transition-transform duration-300 group-hover/tile:-translate-y-0.5 motion-reduce:group-hover/tile:translate-y-0">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-gold-soft opacity-90 transition-opacity duration-300 group-hover/tile:opacity-100">
                           {formatInr(item.price)}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -162,9 +187,9 @@ export default async function HomePage() {
             <li key={cat._id}>
               <Link
                 href={`/menu?category=${cat.slug}`}
-                className="group flex h-full flex-col justify-between rounded-[var(--radius-lg)] border border-border bg-surface px-5 py-6 shadow-[var(--shadow-soft)] transition hover:border-burgundy/30 hover:bg-ivory"
+                className="group flex h-full flex-col justify-between rounded-[var(--radius-lg)] border border-border bg-surface px-5 py-6 shadow-[var(--shadow-soft)] transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-burgundy/30 hover:bg-ivory hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
               >
-                <span className="font-display text-2xl text-charcoal transition group-hover:text-burgundy">
+                <span className="font-display text-2xl text-charcoal transition-colors duration-200 group-hover:text-burgundy">
                   {cat.name}
                 </span>
                 <span className="mt-6 text-xs tracking-[0.16em] text-muted uppercase">
@@ -215,9 +240,10 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 gap-3">
             {visitPhotos.length > 0 ? (
               visitPhotos.map((photo, i) => (
-                <div
+                <Link
                   key={photo._id}
-                  className={`relative overflow-hidden rounded-[var(--radius-lg)] ${
+                  href="/gallery"
+                  className={`group/photo relative overflow-hidden rounded-[var(--radius-lg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-soft ${
                     i === 0 ? "col-span-2 aspect-[16/9]" : "aspect-square"
                   }`}
                 >
@@ -225,15 +251,20 @@ export default async function HomePage() {
                   <img
                     src={photo.imageUrl}
                     alt={photo.imageAlt || "Food & Feast restaurant"}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover/photo:scale-110 motion-reduce:transition-none motion-reduce:group-hover/photo:scale-100"
                     loading="lazy"
                   />
-                </div>
+                  <div
+                    className="absolute inset-0 bg-charcoal/0 transition-colors duration-300 group-hover/photo:bg-charcoal/25 motion-reduce:transition-none"
+                    aria-hidden
+                  />
+                </Link>
               ))
             ) : (
-              <div className="col-span-2 flex aspect-[16/10] items-center justify-center rounded-[var(--radius-lg)] border border-white/15 text-sm text-ivory/60">
-                Restaurant photographs coming soon
-              </div>
+              <div
+                className="col-span-2 aspect-[16/10] rounded-[var(--radius-lg)] border border-white/15 bg-white/5"
+                aria-hidden
+              />
             )}
           </div>
         </div>

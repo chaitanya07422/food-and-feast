@@ -8,8 +8,10 @@
 **/dist/
 **/.next/
 **/coverage/
-**/uploads/*
-!**/uploads/.gitkeep
+
+# Disk uploads only — do not ignore backend/src/uploads (API source)
+backend/uploads/**
+!backend/uploads/.gitkeep
 
 # OS / IDE
 .DS_Store

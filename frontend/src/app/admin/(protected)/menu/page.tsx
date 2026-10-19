@@ -57,6 +57,7 @@ function AdminMenuInner() {
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("categoryId") ?? "";
   const editFromUrl = searchParams.get("edit") ?? "";
+  const newFromUrl = searchParams.get("new") === "1";
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -66,7 +67,9 @@ function AdminMenuInner() {
   const [foodType, setFoodType] = useState("");
   const [categoryId, setCategoryId] = useState(categoryFromUrl);
   const [form, setForm] = useState<FormState>(emptyForm());
-  const [showForm, setShowForm] = useState(Boolean(editFromUrl || categoryFromUrl));
+  const [showForm, setShowForm] = useState(
+    Boolean(editFromUrl || categoryFromUrl || newFromUrl),
+  );
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -78,6 +81,14 @@ function AdminMenuInner() {
   useEffect(() => {
     setCategoryId(categoryFromUrl);
   }, [categoryFromUrl]);
+
+  useEffect(() => {
+    if (!newFromUrl || editFromUrl) return;
+    setShowForm(true);
+    window.setTimeout(() => {
+      document.getElementById("dish-form")?.scrollIntoView({ behavior: "smooth" });
+    }, 80);
+  }, [newFromUrl, editFromUrl]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -715,7 +726,7 @@ function AdminMenuInner() {
                         <div className="min-w-0">
                           <p className="truncate font-medium">{item.name}</p>
                           {item.isFeatured ? (
-                            <p className="text-[0.65rem] text-gold">Featured</p>
+                            <p className="text-[0.65rem] text-muted">Featured</p>
                           ) : null}
                         </div>
                       </div>

@@ -1,34 +1,29 @@
-# Missing assets & business information
+# Owner-supplied content
 
-Do **not** invent these. Marked placeholders stay until the owner supplies them.
+Upload via Admin (or `npm run seed:gallery` for a bulk import). Do not invent brand assets.
 
 ## Brand
 
-- [ ] Logo / wordmark files
-- [ ] Confirmed brand colours (if different from PRD palette)
+- [ ] Logo / wordmark
+- [ ] Confirmed brand colours (if different from current palette)
 
 ## Menu
 
-- [x] Categories and dish names (from owner PDF — seeded)
-- [x] Prices (INR) (from owner PDF — seeded)
-- [x] Veg / non-veg classification (by category from PDF)
-- [ ] **Dish photographs** — please upload food photos (or say if we should use temporary stock placeholders clearly labelled)
-- [ ] Featured dish list (or explicitly none)
-- [ ] Unavailable-item display policy (hide vs mark)
+- [x] Categories, names, prices, veg/non-veg (from owner PDF — `npm run seed`)
+- [ ] Dish photographs (Admin → Menu → upload per dish)
+- [ ] Featured dish list
 
 ## Business
 
-- [x] Public display name — Food & Feast
-- [x] Address — Old Gajuwaka 60 Feet Road (from PDF)
-- [x] Phone — 8919957635 / 7780743264 (from PDF)
-- [ ] Opening hours (not on PDF)
-- [ ] Approved social URLs
-- [ ] Longer About / story copy
-- [ ] Gallery / ambience photographs
+- [x] Display name — Food & Feast
+- [x] Address / phone (from PDF)
+- [ ] Opening hours
+- [ ] Social URLs
+- [ ] About / story copy
+- [ ] Gallery / ambience photos (Admin → Gallery)
 
 ## Operations
 
-- [ ] Domain name (for later deploy)
-- [ ] Admin email for bootstrap account
-- [ ] Analytics preference
-- [ ] Oracle Cloud networking preferences (when deploying)
+- [ ] Domain name
+- [ ] Production `ADMIN_BOOTSTRAP_*` credentials
+- [ ] OCI bucket + `STORAGE_DRIVER=oci` on the VM

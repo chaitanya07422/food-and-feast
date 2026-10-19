@@ -20,9 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/seed/seed.ts",
-    "seed:images": "tsx src/seed/assign-mock-images.ts",
     "seed:gallery": "tsx src/seed/import-restaurant-gallery.ts",
-    "seed:hero": "tsx src/seed/seed-hero-slides.ts"
+    "seed:clear-mock-images": "tsx src/seed/clear-mock-images.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -41,6 +40,7 @@
     "helmet": "^8.3.0",
     "mongoose": "^9.11.2",
     "multer": "^2.4.0",
+    "oci-sdk": "^2.143.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

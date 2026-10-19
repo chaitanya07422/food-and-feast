@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { AdminUser, AdminUserSchema } from '../schemas/admin-user.schema';
+import { AdminBootstrapService } from './admin-bootstrap.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -24,7 +25,8 @@ import { JwtStrategy } from './jwt.strategy';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, AdminBootstrapService],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
+

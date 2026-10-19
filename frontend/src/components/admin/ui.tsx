@@ -152,7 +152,7 @@ export function DishThumb({
     size === "sm" ? "h-10 w-10" : size === "lg" ? "h-14 w-14" : "h-12 w-12";
   return (
     <div
-      className={`relative shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-ivory-deep ${dim}`}
+      className={`relative shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-ivory-deep ring-1 ring-border/60 ${dim}`}
     >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -162,6 +162,54 @@ export function DishThumb({
           —
         </span>
       )}
+    </div>
+  );
+}
+
+export function Skeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`animate-pulse rounded-[var(--radius-md)] bg-[color-mix(in_srgb,var(--ff-ivory-deep)_85%,var(--ff-border))] ${className}`}
+      aria-hidden
+    />
+  );
+}
+
+export function DashboardSkeleton() {
+  return (
+    <div className="space-y-8" aria-busy="true" aria-label="Loading dashboard">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="admin-card flex h-[7.25rem] flex-col p-4">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="mt-3 h-8 w-14" />
+            <Skeleton className="mt-auto h-3 w-24" />
+          </div>
+        ))}
+      </div>
+      <div>
+        <Skeleton className="h-6 w-36" />
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-[var(--radius-lg)]" />
+          ))}
+        </div>
+      </div>
+      <div>
+        <Skeleton className="h-6 w-44" />
+        <div className="admin-card mt-4 divide-y divide-border overflow-hidden">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <Skeleton className="h-12 w-12 shrink-0" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-4 w-2/3 max-w-[12rem]" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+              <Skeleton className="h-5 w-16" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

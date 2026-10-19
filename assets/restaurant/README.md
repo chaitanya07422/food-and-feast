@@ -1,6 +1,6 @@
-# Restaurant photos
+# Restaurant photos (optional bulk import)
 
-Copy your real restaurant images here (from `Downloads/resturent` or elsewhere), then run:
+Copy real restaurant images here, then:
 
 ```bash
 cd food-and-feast/backend
@@ -9,4 +9,4 @@ npm run seed:gallery
 
 Supported: `.jpg` `.jpeg` `.png` `.webp` `.gif`
 
-After import, manage them in Admin → **Gallery**.
+Prefer Admin → **Gallery** for day-to-day uploads (works with `STORAGE_DRIVER=oci`).

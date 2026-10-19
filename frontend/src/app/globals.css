@@ -195,6 +195,19 @@ input[type="radio"] {
   transform: translateY(-2px);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .admin-card,
+  .admin-card-interactive:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+.admin-card-interactive:focus-visible {
+  outline: 2px solid var(--ff-burgundy);
+  outline-offset: 2px;
+}
+
 .admin-input {
   width: 100%;
   border-radius: var(--radius-md);

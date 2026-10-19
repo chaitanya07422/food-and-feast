@@ -1,6 +1,5 @@
-uploads/
+# Uploaded files on disk (not source code under src/uploads/)
+/uploads/*
+!/uploads/.gitkeep
 
 .env
-uploads/*
-!uploads/.gitkeep
-uploads/gallery/

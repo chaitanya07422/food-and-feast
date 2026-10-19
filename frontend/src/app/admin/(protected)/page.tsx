@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ExternalLink,
   FolderOpen,
@@ -14,11 +14,14 @@ import {
   FileWarning,
   Ban,
   CheckCircle2,
+  RefreshCw,
 } from "lucide-react";
+import { AnimatedStat } from "@/components/admin/animated-stat";
 import {
   AdminAlert,
   AdminEmptyState,
   AdminPageHeader,
+  DashboardSkeleton,
   DishThumb,
   StatusBadge,
 } from "@/components/admin/ui";
@@ -34,7 +37,7 @@ type Stats = {
 };
 
 const quickActions = [
-  { href: "/admin/menu", label: "Add dish", icon: Plus, primary: true },
+  { href: "/admin/menu?new=1", label: "Add dish", icon: Plus, primary: true },
   { href: "/admin/menu", label: "Manage menu", icon: UtensilsCrossed },
   { href: "/admin/categories", label: "Manage categories", icon: Tags },
   { href: "/admin/gallery", label: "Upload gallery photos", icon: ImagePlus },
@@ -52,13 +55,23 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    api
-      .get<Stats>("/admin/dashboard")
-      .then(setStats)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.get<Stats>("/admin/dashboard");
+      setStats(data);
+    } catch (err) {
+      setStats(null);
+      setError(err instanceof Error ? err.message : "Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const cards = stats
     ? [
@@ -101,14 +114,14 @@ export default function AdminDashboardPage() {
     : [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-9">
       <AdminPageHeader
         eyebrow="Overview"
         title="Welcome back"
         description="Monitor menu content, update dishes, and keep the public site in sync."
         actions={
           <>
-            <Link href="/admin/menu" className="btn-primary gap-1.5 !py-2.5">
+            <Link href="/admin/menu?new=1" className="btn-primary gap-1.5 !py-2.5">
               <Plus size={16} aria-hidden />
               Add dish
             </Link>
@@ -125,48 +138,64 @@ export default function AdminDashboardPage() {
         }
       />
 
-      {error ? <AdminAlert tone="error">{error}</AdminAlert> : null}
-      {loading ? (
-        <p className="text-sm text-muted">Loading dashboard…</p>
+      {error ? (
+        <div className="space-y-3">
+          <AdminAlert tone="error">{error}</AdminAlert>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="btn-secondary gap-1.5 !py-2.5"
+          >
+            <RefreshCw size={15} aria-hidden />
+            Retry
+          </button>
+        </div>
       ) : null}
 
-      {stats ? (
+      {loading ? <DashboardSkeleton /> : null}
+
+      {!loading && stats ? (
         <>
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            {cards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <Link
-                  key={card.label}
-                  href={card.href}
-                  className="admin-card admin-card-interactive block p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-[0.65rem] tracking-[0.14em] text-muted uppercase">
-                      {card.label}
+          <section aria-label="Key metrics">
+            <h2 className="sr-only">Statistics</h2>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              {cards.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <Link
+                    key={card.label}
+                    href={card.href}
+                    className="admin-card admin-card-interactive flex h-[7.25rem] flex-col p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[0.65rem] tracking-[0.14em] text-muted uppercase">
+                        {card.label}
+                      </p>
+                      <span className="rounded-[var(--radius-sm)] bg-ivory-deep p-1.5 text-gold transition-colors duration-200 group-hover:text-burgundy">
+                        <Icon size={15} strokeWidth={1.75} aria-hidden />
+                      </span>
+                    </div>
+                    <p className="mt-2.5 font-display text-[2rem] leading-none text-burgundy tabular-nums">
+                      <AnimatedStat value={card.value} />
                     </p>
-                    <Icon
-                      size={16}
-                      className="text-gold"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                  </div>
-                  <p className="mt-2 font-display text-3xl leading-none text-burgundy">
-                    {card.value}
-                  </p>
-                  <p className="mt-2 text-xs text-muted">{card.hint}</p>
-                </Link>
-              );
-            })}
+                    <p className="mt-auto pt-2 text-xs text-muted">{card.hint}</p>
+                  </Link>
+                );
+              })}
+            </div>
           </section>
 
           <section>
-            <h2 className="font-display text-xl text-charcoal">Quick actions</h2>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-3">
+              <h2 className="font-display text-xl text-charcoal">Quick actions</h2>
+              <p className="mt-1 text-sm text-muted">
+                Jump to the most common admin tasks.
+              </p>
+            </div>
+            <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {quickActions.map((action) => {
                 const Icon = action.icon;
-                const className = `admin-card admin-card-interactive flex items-center gap-3 px-4 py-3.5 text-sm font-medium ${
+                const className = `admin-card admin-card-interactive flex items-center gap-3 px-4 py-3.5 text-sm font-medium transition-[border-color,box-shadow,transform,color] duration-200 ${
                   "primary" in action && action.primary
                     ? "border-burgundy/25 text-burgundy"
                     : "text-charcoal"
@@ -180,7 +209,7 @@ export default function AdminDashboardPage() {
                         rel="noopener noreferrer"
                         className={className}
                       >
-                        <Icon size={17} className="text-gold" aria-hidden />
+                        <Icon size={17} className="shrink-0 text-gold" aria-hidden />
                         {action.label}
                       </a>
                     </li>
@@ -189,7 +218,7 @@ export default function AdminDashboardPage() {
                 return (
                   <li key={action.label}>
                     <Link href={action.href} className={className}>
-                      <Icon size={17} className="text-gold" aria-hidden />
+                      <Icon size={17} className="shrink-0 text-gold" aria-hidden />
                       {action.label}
                     </Link>
                   </li>
@@ -222,7 +251,7 @@ export default function AdminDashboardPage() {
                   title="No dishes yet"
                   description="Add your first dish to see it listed here."
                   action={
-                    <Link href="/admin/menu" className="btn-primary">
+                    <Link href="/admin/menu?new=1" className="btn-primary">
                       Add dish
                     </Link>
                   }
@@ -230,31 +259,38 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <ul className="admin-card mt-4 divide-y divide-border overflow-hidden">
-                {stats.recent.map((item) => (
-                  <li key={item._id}>
-                    <Link
-                      href={`/admin/menu?edit=${item._id}`}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-ivory/80"
-                    >
-                      <DishThumb src={item.imageUrl} alt="" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-charcoal">
-                          {item.name}
-                        </p>
-                        <p className="text-xs text-muted">
-                          {formatInr(item.price)}
-                        </p>
-                      </div>
-                      <StatusBadge
-                        tone={
-                          item.status === "published" ? "success" : "warning"
-                        }
+                {stats.recent.map((item) => {
+                  return (
+                    <li key={item._id}>
+                      <Link
+                        href={`/admin/menu?edit=${item._id}`}
+                        className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-200 hover:bg-ivory/90 focus-visible:bg-ivory/90"
                       >
-                        {item.status}
-                      </StatusBadge>
-                    </Link>
-                  </li>
-                ))}
+                        <DishThumb src={item.imageUrl} alt="" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-charcoal">
+                            {item.name}
+                          </p>
+                          <p className="mt-0.5 text-xs text-muted">
+                            {formatInr(item.price)}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
+                          {!item.isAvailable ? (
+                            <StatusBadge tone="danger">Unavailable</StatusBadge>
+                          ) : null}
+                          <StatusBadge
+                            tone={
+                              item.status === "published" ? "success" : "warning"
+                            }
+                          >
+                            {item.status}
+                          </StatusBadge>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>

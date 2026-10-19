@@ -11,7 +11,12 @@ import {
   DishThumb,
   StatusBadge,
 } from "@/components/admin/ui";
-import { api, formatInr, type Category, type MenuItem } from "@/lib/api";
+import {
+  api,
+  formatInr,
+  type Category,
+  type MenuItem,
+} from "@/lib/api";
 
 export default function AdminCategoryDishesPage() {
   const params = useParams();
@@ -183,7 +188,9 @@ export default function AdminCategoryDishesPage() {
                   <DishThumb src={item.imageUrl} size="lg" />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{item.name}</p>
-                    <p className="text-xs text-muted">{formatInr(item.price)}</p>
+                    <p className="text-xs text-muted">
+                      {formatInr(item.price)}
+                    </p>
                     <div className="mt-2">
                       <StatusBadge
                         tone={

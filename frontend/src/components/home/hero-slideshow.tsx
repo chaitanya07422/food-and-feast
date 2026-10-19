@@ -12,8 +12,8 @@ export type HeroSlide = {
   displayOrder?: number;
 };
 
-const SLIDE_MS = 3200;
-const FADE_MS = 900;
+const SLIDE_MS = 5500;
+const FADE_MS = 1200;
 
 type Props = {
   slides: HeroSlide[];
@@ -57,7 +57,7 @@ export function HeroSlideshow({ slides }: Props) {
 
   return (
     <section
-      className="relative min-h-[72vh] overflow-hidden bg-burgundy-deep"
+      className="relative min-h-[68vh] overflow-hidden bg-burgundy-deep sm:min-h-[72vh]"
       aria-roledescription="carousel"
       aria-labelledby={labelId}
     >
@@ -87,7 +87,13 @@ export function HeroSlideshow({ slides }: Props) {
                 <img
                   src={slide.imageUrl}
                   alt=""
-                  className="h-full w-full object-cover object-center"
+                  className={`h-full w-full object-cover object-center ${
+                    reduceMotion
+                      ? "scale-[1.02]"
+                      : active
+                        ? "scale-105 transition-transform duration-[5500ms] ease-out"
+                        : "scale-[1.02] transition-transform duration-700 ease-out"
+                  }`}
                   loading={isFirst ? "eager" : "lazy"}
                   fetchPriority={isFirst ? "high" : "low"}
                   decoding={isFirst ? "sync" : "async"}

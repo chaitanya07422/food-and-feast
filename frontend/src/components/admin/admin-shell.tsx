@@ -71,17 +71,27 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`group flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 text-sm transition-[background-color,color,box-shadow] duration-200 ${
+              className={`group relative flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 text-sm transition-[background-color,color,box-shadow] duration-[180ms] ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy ${
                 active
-                  ? "bg-burgundy font-medium text-ivory shadow-[0_4px_12px_rgba(107,30,42,0.25)]"
+                  ? "bg-burgundy font-medium text-ivory shadow-[0_4px_12px_rgba(107,30,42,0.22)]"
                   : "text-charcoal/80 hover:bg-ivory-deep hover:text-burgundy"
               }`}
               aria-current={active ? "page" : undefined}
             >
+              {active ? (
+                <span
+                  className="absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-full bg-gold-soft"
+                  aria-hidden
+                />
+              ) : null}
               <Icon
                 size={17}
                 strokeWidth={1.75}
-                className={active ? "text-gold-soft" : "text-muted group-hover:text-burgundy"}
+                className={
+                  active
+                    ? "text-gold-soft"
+                    : "text-muted transition-colors duration-[180ms] group-hover:text-burgundy"
+                }
                 aria-hidden
               />
               {item.label}

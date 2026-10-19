@@ -1,45 +1,39 @@
-# Architecture (Milestone 1)
+# Architecture
 
-## Decisions locked for v1
+## Decisions (v1)
 
-- **Monorepo folder** under CreditSea workspace: `food-and-feast/` (no git yet)
-- **Frontend:** Next.js App Router + Tailwind + Lucide
-- **Backend:** NestJS REST under `/api/v1`
-- **Database:** MongoDB via Mongoose (not PostgreSQL/Prisma)
-- **Demo target:** Local Mac only for now; Oracle Cloud later
-- **No online ordering** in v1
+- Monorepo: `food-and-feast/`
+- Frontend: Next.js App Router + Tailwind
+- Backend: NestJS REST under `/api/v1`
+- Database: MongoDB via Mongoose
+- Storage: `STORAGE_DRIVER=local` or `oci` (OCI Object Storage, streamed via Nest `/uploads`)
+- Deploy: Oracle Cloud Ubuntu + Nginx TLS + PM2
+- No online ordering in v1
 
-## Data collections
+## Collections
 
 | Collection | Purpose |
 |------------|---------|
 | `categories` | Menu categories |
-| `menu_items` | Dishes (draft/published, available flag, INR price) |
-| `admin_users` | Owner accounts (password hashes only) |
-| `restaurant_settings` | Name, contact, hours, social links |
+| `menu_items` | Dishes (draft/published, available, INR) |
+| `admin_users` | Owner accounts (password hashes); bootstrapped from env |
+| `restaurant_settings` | Name, contact, hours, social |
+| `gallery_images` | Restaurant photography |
+| `hero_slides` | Homepage slideshow |
 
-Public reads must filter `status: published`. Drafts never leave admin APIs (enforced in Milestone 3–4).
+Public reads filter `status: published` / `isPublished` / `isActive`.
 
-## Route map
+## Routes
 
-### Public
+**Public:** `/` `/menu` `/about` `/gallery` `/contact`
 
-- `/` Home
-- `/menu` Digital menu
-- `/about` About
-- `/gallery` Gallery
-- `/contact` Contact
+**Admin:** `/admin/login` `/admin` `/admin/menu` `/admin/categories` `/admin/gallery` `/admin/hero` `/admin/settings`
 
-### Admin (shells now; auth in Milestone 4)
+## Request path (production)
 
-- `/admin/login`
-- `/admin` Dashboard
-- `/admin/menu`
-- `/admin/categories`
-- `/admin/settings`
-
-## API (current)
-
-- `GET /api/v1/health` — process + Mongo connectivity
-
-Menu, auth, upload, and settings endpoints arrive in later milestones.
+```text
+Internet → Nginx :443
+            ├─ /api/      → Nest :4000
+            ├─ /uploads/  → Nest :4000  (local disk or OCI)
+            └─ /          → Next :3000
+```
