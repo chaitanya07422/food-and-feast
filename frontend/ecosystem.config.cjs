@@ -7,7 +7,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
-        HOSTNAME: '127.0.0.1',
+        // 0.0.0.0 so Nginx Proxy Manager (Docker) can reach the host via the bridge IP
+        HOSTNAME: '0.0.0.0',
       },
     },
   ],
