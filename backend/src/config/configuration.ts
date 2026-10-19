@@ -9,7 +9,7 @@ export default () => ({
     .filter(Boolean),
   sessionSecret: process.env.SESSION_SECRET ?? 'dev-only-insecure-secret',
   uploadDir: process.env.UPLOAD_DIR ?? './uploads',
-  maxUploadBytes: parseInt(process.env.MAX_UPLOAD_BYTES ?? '5242880', 10),
+  maxUploadBytes: parseInt(process.env.MAX_UPLOAD_BYTES ?? '20971520', 10),
   publicApiOrigin:
     process.env.PUBLIC_API_ORIGIN ??
     `http://localhost:${process.env.PORT ?? '4000'}`,

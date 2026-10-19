@@ -23,6 +23,8 @@ export function HeroSlideshow({ slides }: Props) {
   const labelId = useId();
   const [index, setIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
+  /** Only hydrate image src for current + next to avoid multi‑MB parallel downloads. */
+  const [loaded, setLoaded] = useState<Set<number>>(() => new Set([0, 1]));
 
   const safeSlides =
     slides.length > 0
@@ -51,6 +53,17 @@ export function HeroSlideshow({ slides }: Props) {
     return () => window.clearInterval(id);
   }, [reduceMotion, safeSlides.length]);
 
+  useEffect(() => {
+    const next = (index + 1) % safeSlides.length;
+    setLoaded((prev) => {
+      if (prev.has(index) && prev.has(next)) return prev;
+      const copy = new Set(prev);
+      copy.add(index);
+      copy.add(next);
+      return copy;
+    });
+  }, [index, safeSlides.length]);
+
   function goTo(next: number) {
     setIndex(next);
   }
@@ -70,6 +83,7 @@ export function HeroSlideshow({ slides }: Props) {
         {safeSlides.map((slide, i) => {
           const active = reduceMotion ? i === 0 : i === index;
           const isFirst = i === 0;
+          const shouldLoad = loaded.has(i) || (reduceMotion && isFirst);
           return (
             <div
               key={slide._id ?? `${slide.imageUrl}-${i}`}
@@ -82,7 +96,7 @@ export function HeroSlideshow({ slides }: Props) {
                 zIndex: active ? 1 : 0,
               }}
             >
-              {slide.imageUrl ? (
+              {slide.imageUrl && shouldLoad ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={slide.imageUrl}

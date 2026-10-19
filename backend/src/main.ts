@@ -58,7 +58,10 @@ async function bootstrap() {
           'Content-Type',
           CONTENT_TYPES[ext] ?? 'application/octet-stream',
         );
-        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader(
+          'Cache-Control',
+          'public, max-age=31536000, immutable',
+        );
         if (req.method === 'HEAD') {
           res.end();
           return;

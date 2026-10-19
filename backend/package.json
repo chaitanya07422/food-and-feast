@@ -21,7 +21,8 @@
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/seed/seed.ts",
     "seed:gallery": "tsx src/seed/import-restaurant-gallery.ts",
-    "seed:clear-mock-images": "tsx src/seed/clear-mock-images.ts"
+    "seed:clear-mock-images": "tsx src/seed/clear-mock-images.ts",
+    "optimize:uploads": "tsx src/seed/optimize-existing-uploads.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -45,7 +46,8 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -62,6 +64,7 @@
     "@types/node": "^24.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
+    "@types/sharp": "^0.31.1",
     "@types/supertest": "^7.0.0",
     "dotenv": "^18.0.8",
     "eslint": "^9.18.0",
