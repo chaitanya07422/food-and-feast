@@ -1,0 +1,180 @@
+name: Deploy to Oracle
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-oracle
+  cancel-in-progress: true
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Production node_modules
+        run: |
+          rm -rf node_modules
+          npm ci --omit=dev
+
+      - name: Pack release
+        run: |
+          mkdir -p ../api-release
+          cp -a dist node_modules package.json package-lock.json ecosystem.config.cjs ../api-release/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: api-release
+          path: api-release
+          retention-days: 1
+
+  build-web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.FF_PUBLIC_URL }}/api/v1
+          NEXT_PUBLIC_API_ORIGIN: ${{ secrets.FF_PUBLIC_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.FF_PUBLIC_URL }}
+
+      - name: Pack standalone release
+        run: |
+          mkdir -p ../web-release
+          cp -a .next/standalone/. ../web-release/
+          mkdir -p ../web-release/.next
+          cp -a .next/static ../web-release/.next/static
+          if [ -d public ]; then cp -a public ../web-release/public; fi
+          cp ecosystem.config.cjs ../web-release/ecosystem.config.cjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: web-release
+          retention-days: 1
+          include-hidden-files: true
+
+  deploy:
+    needs: [build-api, build-web]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download API release
+        uses: actions/download-artifact@v4
+        with:
+          name: api-release
+          path: api-release
+
+      - name: Download web release
+        uses: actions/download-artifact@v4
+        with:
+          name: web-release
+          path: web-release
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Ensure app dirs on server
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            'mkdir -p /home/ubuntu/apps/food-and-feast-api/{current,shared} \
+                     /home/ubuntu/apps/food-and-feast-web/current \
+                     /home/ubuntu/apps/food-and-feast-api/shared/uploads'
+
+      - name: Rsync API
+        run: |
+          rsync -az --delete \
+            -e 'ssh -i ~/.ssh/deploy_key' \
+            --exclude .env \
+            --exclude uploads \
+            ./api-release/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/apps/food-and-feast-api/current/"
+
+      - name: Rsync web
+        run: |
+          rsync -az --delete \
+            -e 'ssh -i ~/.ssh/deploy_key' \
+            ./web-release/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/apps/food-and-feast-web/current/"
+
+      - name: Reload PM2
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" 'set -e
+            API=/home/ubuntu/apps/food-and-feast-api
+            WEB=/home/ubuntu/apps/food-and-feast-web
+
+            # Link production env (create once on the VM — never overwrite from CI)
+            if [ ! -f "$API/shared/.env" ]; then
+              echo "Missing $API/shared/.env — create it on the VM before deploy"
+              exit 1
+            fi
+            ln -sfn "$API/shared/.env" "$API/current/.env"
+            mkdir -p "$API/shared/uploads"
+            ln -sfn "$API/shared/uploads" "$API/current/uploads"
+
+            cp "$API/current/ecosystem.config.cjs" "$API/ecosystem.config.cjs"
+            cp "$WEB/current/ecosystem.config.cjs" "$WEB/ecosystem.config.cjs"
+
+            export PATH="$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | tail -1)/bin:/usr/bin:$PATH"
+            command -v pm2 >/dev/null || { echo "pm2 not installed"; exit 1; }
+
+            pm2 startOrReload "$API/ecosystem.config.cjs" --update-env
+            pm2 startOrReload "$WEB/ecosystem.config.cjs" --update-env
+            pm2 save
+
+            for i in $(seq 1 20); do
+              if curl -sf http://127.0.0.1:4000/api/v1/health >/dev/null \
+                && curl -sf -o /dev/null http://127.0.0.1:3000/; then
+                echo "Healthy"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "Health check failed"
+            pm2 logs ff-api --lines 40 --nostream || true
+            pm2 logs ff-web --lines 40 --nostream || true
+            exit 1
+          '

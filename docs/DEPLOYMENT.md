@@ -2,6 +2,43 @@
 
 Mirrors the CreditSea LMS layout: **Nginx (HTTPS) → Next + Nest**, MongoDB Atlas (or local), **OCI Object Storage** for images.
 
+## GitHub Actions (auto-deploy)
+
+Workflow: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml)
+
+On every push to `main` (and manual **Actions → Deploy to Oracle → Run workflow**):
+
+1. Build Nest API + Next standalone on GitHub runners  
+2. `rsync` to the Oracle VM  
+3. `pm2 startOrReload` → `ff-api` (:4000) and `ff-web` (:3000)
+
+### Required GitHub secrets (`Settings → Secrets and variables → Actions`)
+
+| Secret | Example |
+|--------|---------|
+| `DEPLOY_HOST` | `129.159.226.127` |
+| `DEPLOY_USER` | `ubuntu` |
+| `DEPLOY_SSH_KEY` | Private key contents (same key as `oracle-jogi`) |
+| `FF_PUBLIC_URL` | `https://your-domain.com` (no trailing slash) |
+
+### One-time on the VM
+
+```bash
+# Node 20 + PM2 (if not already installed)
+curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.nvm/nvm.sh
+nvm install 20
+npm install -g pm2
+
+mkdir -p ~/apps/food-and-feast-api/shared/uploads \
+         ~/apps/food-and-feast-web/current
+
+# Create production env (Actions will not overwrite this file)
+nano ~/apps/food-and-feast-api/shared/.env
+```
+
+Point Nginx Proxy Manager (or nginx) at `:3000` / `:4000` as in the proxy section below.
+
 Before first production seed, clear any leftover local mock image URLs:
 
 ```bash
