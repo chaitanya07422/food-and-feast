@@ -33,6 +33,13 @@ npm install -g pm2
 mkdir -p ~/apps/food-and-feast-api/shared/uploads \
          ~/apps/food-and-feast-web/current
 
+# MongoDB (local Docker) — or set MONGODB_URI to Atlas instead
+docker run -d --name ff-mongo --restart unless-stopped \
+  -p 127.0.0.1:27017:27017 \
+  -v ff-mongo-data:/data/db \
+  --memory=256m \
+  mongo:7
+
 # Create production env (Actions will not overwrite this file)
 nano ~/apps/food-and-feast-api/shared/.env
 ```
