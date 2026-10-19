@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { api, type RestaurantSettings } from "@/lib/api";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -55,7 +56,7 @@ export default async function ContactPage() {
           </div>
 
           <a
-            href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+            href={SITE.directionsUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary mt-8"

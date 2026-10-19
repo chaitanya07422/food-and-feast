@@ -56,12 +56,14 @@ export function SiteFooter({ address, phone }: FooterProps) {
             {resolvedPhone.replace(/(\d{5})(\d+)/, "$1 $2")}
           </a>
           <p className="mt-1 text-sm text-ivory/60">Also: 7780 743264</p>
-          <Link
-            href="/contact"
+          <a
+            href={SITE.directionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-5 inline-block text-sm text-gold-soft underline-offset-4 transition hover:underline"
           >
             Get directions
-          </Link>
+          </a>
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-ivory/50 sm:px-6">

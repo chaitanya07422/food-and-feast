@@ -7,6 +7,8 @@ export const SITE = {
   tagline: "One Place. Endless Flavours",
   descriptionPlaceholder:
     "Multicuisine restaurant serving Indian, Chinese, Tandoori and Kshatriya specialities.",
+  /** Google Maps share link for “Get directions” CTAs */
+  directionsUrl: "https://share.google/Z5zF57RUlzmFK6jPy",
   nav: [
     { href: "/", label: "Home" },
     { href: "/menu", label: "Menu" },

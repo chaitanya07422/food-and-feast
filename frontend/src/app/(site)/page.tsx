@@ -49,7 +49,6 @@ export default async function HomePage() {
     settings?.address ||
     "Old Gajuwaka 60 Feet Road, opposite Federal Bank, near Vantillu Junction";
   const phone = settings?.phone || "8919957635";
-  const mapsQuery = encodeURIComponent(address);
 
   return (
     <>
@@ -222,7 +221,7 @@ export default async function HomePage() {
             </a>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+                href={SITE.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex rounded-[var(--radius-md)] bg-ivory px-5 py-3 text-sm font-semibold text-burgundy-deep transition hover:bg-gold-soft"
