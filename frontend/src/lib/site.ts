@@ -7,8 +7,15 @@ export const SITE = {
   tagline: "One Place. Endless Flavours",
   descriptionPlaceholder:
     "Multicuisine restaurant serving Indian, Chinese, Tandoori and Kshatriya specialities.",
-  /** Google Maps share link for “Get directions” CTAs */
-  directionsUrl: "https://share.google/Z5zF57RUlzmFK6jPy",
+  /**
+   * Google Maps place for Food and Feast Multicuisine Restaurant
+   * (17.6829711, 83.2057678 — Old Gajuwaka).
+   */
+  directionsUrl:
+    "https://www.google.com/maps/place/Food+and+Feast+Multicuisine+Restaurant/@17.6829711,83.2057678,17z",
+  /** Embed query pinned to the restaurant place (not nearby landmarks). */
+  mapsEmbedUrl:
+    "https://maps.google.com/maps?q=Food+and+Feast+Multicuisine+Restaurant,+Gajuwaka&ll=17.6829711,83.2057678&z=17&output=embed",
   nav: [
     { href: "/", label: "Home" },
     { href: "/menu", label: "Menu" },

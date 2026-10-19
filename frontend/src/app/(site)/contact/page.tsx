@@ -21,7 +21,6 @@ export default async function ContactPage() {
     settings?.address ||
     "Old Gajuwaka 60 Feet Road, opposite Federal Bank, near Vantillu Junction";
   const phone = settings?.phone || "8919957635";
-  const mapsQuery = encodeURIComponent(address);
 
   return (
     <div className="mx-auto max-w-[var(--content-max)] px-4 py-[var(--space-section)] sm:px-6 lg:px-8">
@@ -68,7 +67,7 @@ export default async function ContactPage() {
         <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-ivory-deep shadow-[var(--shadow-soft)]">
           <iframe
             title="Map directions to Food & Feast"
-            src={`https://maps.google.com/maps?q=${mapsQuery}&z=15&output=embed`}
+            src={SITE.mapsEmbedUrl}
             className="h-full min-h-[22rem] w-full border-0 lg:min-h-full"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
